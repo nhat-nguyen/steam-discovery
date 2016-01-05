@@ -81,7 +81,6 @@
             casper.waitFor(function() {
                 return this.getElementAttribute('#auth_buttonset_waiting', 'style') === 'display: none; ';
             }, function() {
-                this.capture('steam_5.png');
                 console.log('Successfully logged in...');
             });
         });
@@ -99,7 +98,6 @@
                 this.waitForUrlChange(oldUrl);
             } else {
                 var link = this.getElementAttribute('#discovery_queue_start_link', 'href');
-                this.capture('bug3.png');
                 this.thenOpen(link);
                 console.log('Starting the queue at ' + link);
             }
