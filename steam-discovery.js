@@ -14,7 +14,8 @@
     var casper = require('casper').create();
 
     usage();
-
+	console.log('Please make sure to set your steam language to English, otherwise the script might not work properly');
+	
     casper.options.waitTimeout = 60000;
 
     casper.waitForUrlChange = function(oldUrl) {
@@ -24,7 +25,7 @@
         return this;
     };
 
-    var url = 'https://store.steampowered.com/login/?redir=explore%2F';
+    var url = 'https://store.steampowered.com/login/?redir=explore%2F&l=en';
     var username = casper.cli.args[0];
     var password = casper.cli.args[1];
 
@@ -55,7 +56,8 @@
                 this.fill('form[name=logon]', {username: username, password: password, captcha_text: captcha}, true);
 
                 this.waitFor(function() {
-                    return this.getElementAttribute('#login_btn_wait', 'style') !== 'display: block; ';
+					console.log('styla: ' + this.getElementAttribute('#login_btn_wait', 'style'));
+                    return this.getElementAttribute('#login_btn_wait', 'style') !== 'display: block;';
                 }, function() {
                     console.log('Successfully submitting captcha...');
                 });
@@ -63,7 +65,40 @@
         });
     }();
 
-    var steamGuard = function() {
+    var twoFactor = function() {
+        casper.then(function() {
+            var hasAuth = this.evaluate(function() {
+                return document.getElementsByClassName('login_modal loginTwoFactorCodeModal')[0].style.display !== 'none';
+            });
+
+            if (!hasAuth) return;
+
+            var authCode = consoleRead('Two factor code');
+
+            this.evaluate(function(authCode) {
+                document.getElementById('twofactorcode_entry').value = authCode;
+            }, authCode);
+			
+            this.clickLabel('my authenticator code','div');
+			
+            casper.waitFor(function() {
+                return this.getElementAttribute('#login_btn_wait', 'style') === 'display: none;';
+            }, function() {
+				var wrongAuth = this.evaluate(function() {
+					return document.getElementById('login_twofactorauth_message_incorrectcode').style.display !== 'none';
+				});
+			if (wrongAuth) {
+				console.log('Auth went wrong, program will stop shortly');
+				return;
+			} else {
+                console.log('Successfully logged in...');
+            }
+			});
+        });
+    }();
+	
+	//might not work properly
+	var steamGuard = function() {
         casper.then(function() {
             var hasAuth = this.evaluate(function() {
                 return document.getElementsByClassName('login_modal loginAuthCodeModal')[0].style.display !== 'none';
@@ -85,12 +120,13 @@
             });
         });
     }();
-
+	//
+	
     var startQueue = function() {
-        casper.thenOpen('http://store.steampowered.com/explore/');
-
+        casper.thenOpen('http://store.steampowered.com/explore/?l=en');
+		
         casper.then(function() {
-            if (this.getElementAttribute('#discovery_queue_ctn', 'style') === 'display: none; ') {
+            if (this.getElementAttribute('#discovery_queue_ctn', 'style') === 'display: none;') {
                 var oldUrl = this.getCurrentUrl();
                 this.click('#refresh_queue_btn');
                 this.clickLabel('Start another queue >>');
@@ -98,7 +134,7 @@
                 this.waitForUrlChange(oldUrl);
             } else {
                 var link = this.getElementAttribute('#discovery_queue_start_link', 'href');
-                this.thenOpen(link);
+                this.thenOpen(link + '?l=en');
                 console.log('Starting the queue at ' + link);
             }
         });
@@ -126,16 +162,21 @@
 
         var traverse = function() {
             console.log('Currently at: ' + casper.getTitle());
+			if (casper.getTitle() === 'Your Discovery Queue') {
+				console.log('We\'re done here *flying away*');
+				return;
+			}
             byPassAgeCheck(compensateQueue);
             var oldUrl = casper.getCurrentUrl();
-            casper.evaluate(function() {
-                document.getElementById('next_in_queue_form').submit();
-            });
+            casper.evaluate(function() { 									//
+                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP
+            });																//
             casper.waitForUrlChange(oldUrl);
         };
 
         var getRemainingTitle = function() {
             var queue_sub_text = document.getElementsByClassName('queue_sub_text');
+			console.log(queue_sub_text);
             if (queue_sub_text.length === 0) {
                 return 1;
             } else {
