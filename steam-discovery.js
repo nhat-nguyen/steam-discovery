@@ -165,7 +165,6 @@
                 casper.waitForUrlChange(currentUrl);
             }else if (casper.getCurrentUrl().indexOf('agecheck') > -1 && needClick){
 				console.log('Bypassing age-check by clicking...');
-					casper.capture('google.png');
 					casper.clickLabel('Continue');
                 var currentUrl = casper.getCurrentUrl();
                 if (arr !== undefined) arr.push(arr.length);
