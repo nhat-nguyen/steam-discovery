@@ -146,8 +146,14 @@
         var titleLeft = 0;
 
         var byPassAgeCheck = function(arr) {
-            if (casper.getCurrentUrl().indexOf('agecheck') > -1) { // has age check
+			var needClick = casper.evaluate(function() {
+				return document.getElementById('remember').type === 'checkbox';		//do we have a warning or a restriction?
+			});
+			if(needClick !== true){needClick = false;}
+			
+            if (casper.getCurrentUrl().indexOf('agecheck') > -1 && !needClick) {	// has age check
                 console.log('Bypassing age-check...');
+				
                 var currentUrl = casper.getCurrentUrl();
                 casper.evaluate(function() {
                     document.querySelector('select[name=ageYear]').value = 1990;
@@ -157,7 +163,14 @@
                 });
                 if (arr !== undefined) arr.push(arr.length);
                 casper.waitForUrlChange(currentUrl);
-            }
+            }else if (casper.getCurrentUrl().indexOf('agecheck') > -1 && needClick){
+				console.log('Bypassing age-check by clicking...');
+					casper.capture('google.png');
+					casper.clickLabel('Continue');
+                var currentUrl = casper.getCurrentUrl();
+                if (arr !== undefined) arr.push(arr.length);
+                casper.waitForUrlChange(currentUrl);
+			}
         };
 
         var traverse = function() {
@@ -169,7 +182,7 @@
             byPassAgeCheck(compensateQueue);
             var oldUrl = casper.getCurrentUrl();
             casper.evaluate(function() { 									//
-                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP
+                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP    nvm it's not important
             });																//
             casper.waitForUrlChange(oldUrl);
         };
