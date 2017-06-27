@@ -14,7 +14,7 @@
     var casper = require('casper').create();
 
     usage();
-	//console.log('Please make sure to set your steam language to English, otherwise the script might not work properly');
+	console.log('Please make sure to set your steam language to English, otherwise the script might not work properly');
 	
     casper.options.waitTimeout = 60000;
 
@@ -120,7 +120,6 @@
             });
         });
     }();
-	//
 	
 	//set language prefs
 	var setLanguage = function () {
@@ -221,6 +220,5 @@
         });
     }();
 	});
-	
     casper.run();
 })();
