@@ -14,7 +14,7 @@
     var casper = require('casper').create();
 
     usage();
-	console.log('Please make sure to set your steam language to English, otherwise the script might not work properly');
+	//console.log('Please make sure to set your steam language to English, otherwise the script might not work properly');
 	
     casper.options.waitTimeout = 60000;
 
@@ -191,7 +191,7 @@
             byPassAgeCheck(compensateQueue);
             var oldUrl = casper.getCurrentUrl();
             casper.evaluate(function() { 									//
-                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP    nvm it's not important
+                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP    nvm it's not important now
             });																//
             casper.waitForUrlChange(oldUrl);
         };
