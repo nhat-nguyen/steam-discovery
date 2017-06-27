@@ -120,8 +120,17 @@
             });
         });
     }();
-	//
 	
+	//set language prefs
+	var setLanguage = function () {
+		casper.thenOpen('https://store.steampowered.com/account/languagepreferences/?l=english');
+		casper.then(function() {
+			this.clickLabel('Save');
+			console.log('Language set to English');
+		});
+	}();
+	
+	casper.repeat(3, function () {
     var startQueue = function() {
         casper.thenOpen('http://store.steampowered.com/explore/?l=en');
 		
@@ -181,7 +190,7 @@
             byPassAgeCheck(compensateQueue);
             var oldUrl = casper.getCurrentUrl();
             casper.evaluate(function() { 									//
-                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP    nvm it's not important
+                document.getElementById('next_in_queue_form').submit();		//THIS IS WHERE THE LANGUAGE SETTINGS GET F#'D UP    nvm it's not important now
             });																//
             casper.waitForUrlChange(oldUrl);
         };
@@ -210,6 +219,6 @@
             });
         });
     }();
-
+	});
     casper.run();
 })();
