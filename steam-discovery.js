@@ -122,6 +122,16 @@
     }();
 	//
 	
+	//set language prefs
+	var setLanguage = function () {
+		casper.thenOpen('https://store.steampowered.com/account/languagepreferences/?l=english');
+		casper.then(function() {
+			this.clickLabel('Save');
+			console.log('Language set to English');
+		});
+	}();
+	
+	casper.repeat(3, function () {
     var startQueue = function() {
         casper.thenOpen('http://store.steampowered.com/explore/?l=en');
 		
@@ -211,6 +221,7 @@
             });
         });
     }();
-
+	});
+	
     casper.run();
 })();
